@@ -1,0 +1,43 @@
+# pubmedqa_config.yaml
+weaviate:
+  url: ${WEAVIATE_URL}  # From environment variables
+  api_key: ${WEAVIATE_API_KEY}  # From environment variables
+  class_name: "PubMedQA"
+  properties:
+    - name: "content"
+      dataType: ["text"]
+  vectorizer: "text2vec-openai"
+  batch_size: 50
+
+dataset:
+  name: "pubmed_qa"
+  config_name: "pqa_labeled"
+  train_split: "train"
+  validation_split: "validation"
+
+preprocessing:
+  num_samples: 2000
+  max_context_chars: 1000
+
+evaluation:
+  validation_samples: 500
+  num_threads: 4
+
+rag:
+  lm_model: "gpt-3.5-turbo"
+  lm_max_tokens: 500
+  temperature: 0.7
+  num_passages: 5
+
+optimization:
+  teacher_model: "gpt-4"
+  num_candidate_programs: 8
+  max_bootstrapped_demos: 5
+  num_threads: 4
+  train_ratio: 0.7
+
+testing:
+  questions:
+    - "Does aspirin reduce the risk of heart attacks?"
+    - "Is vitamin D effective for treating depression?"
+    - "Can exercise prevent Alzheimer's disease?"
