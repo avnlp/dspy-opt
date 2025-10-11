@@ -4,48 +4,42 @@ import time
 import weaviate
 from weaviate.classes.init import Auth
 from weaviate.collections.classes.config import Configure, Property, DataType
+from weaviate.collections.classes.grpc import MetadataQuery
 from datasets import load_dataset
 from dotenv import load_dotenv
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("pubmedqa_rag.ingest")
+logger = logging.getLogger("pubmedqa_rag")
 
-# Load .env
 load_dotenv()
 
+CLASS_NAME = "PubMedQA"
+
 def get_weaviate_client():
-    """Connect to Weaviate Cloud using v4 client with Cohere header."""
     weaviate_url = os.getenv("WEAVIATE_URL")
     weaviate_key = os.getenv("WEAVIATE_API_KEY")
     cohere_key = os.getenv("COHERE_APIKEY")
 
-    if not weaviate_url or not weaviate_key or not cohere_key:
-        raise ValueError(" Missing WEAVIATE_URL, WEAVIATE_API_KEY, or COHERE_APIKEY in .env")
+    if not all([weaviate_url, weaviate_key, cohere_key]):
+        raise ValueError("❌ Missing env vars: WEAVIATE_URL, WEAVIATE_API_KEY, COHERE_APIKEY")
 
-    logger.info(f"Connecting to Weaviate Cloud: {weaviate_url}")
     headers = {"X-Cohere-Api-Key": cohere_key}
-
     client = weaviate.connect_to_weaviate_cloud(
         cluster_url=weaviate_url,
         auth_credentials=Auth.api_key(weaviate_key),
         headers=headers,
-    )
-
+        )
     logger.info(" Connected to Weaviate Cloud (v4).")
     return client
 
-def create_schema(client, class_name: str):
-    """Create a collection (class) with text2vec-cohere vectorizer."""
-    if client.collections.exists(class_name):
-        logger.info(f"Collection '{class_name}' exists. Deleting...")
-        client.collections.delete(class_name)
+def create_schema(client):
+    if client.collections.exists(CLASS_NAME):
+        logger.info(f"🗑️ Deleting existing collection '{CLASS_NAME}'...")
+        client.collections.delete(CLASS_NAME)
         time.sleep(2)
 
-    logger.info(f"Creating collection '{class_name}' with text2vec-cohere...")
-
     client.collections.create(
-        name=class_name,
+        name=CLASS_NAME,
         vectorizer_config=Configure.Vectorizer.text2vec_cohere(
             model="embed-english-v3.0",
             truncate="RIGHT"
@@ -57,15 +51,13 @@ def create_schema(client, class_name: str):
             Property(name="pubid", data_type=DataType.TEXT),
         ]
     )
-    logger.info(" Schema created successfully.")
+    logger.info(" Schema created.")
 
 def load_pubmedqa_train():
-    """Load only the 'train' split of PubMedQA (pqa_labeled)."""
-    logger.info("📥 Loading PubMedQA (pqa_labeled, train split)...")
+    logger.info("📥 Loading PubMedQA train split...")
     dataset = load_dataset("qiaojin/PubMedQA", "pqa_labeled")
-    train = dataset["train"]
     records = []
-    for item in train:
+    for item in dataset["train"]:
         records.append({
             "question": item["question"],
             "context": " ".join(item["context"]),
@@ -75,27 +67,75 @@ def load_pubmedqa_train():
     logger.info(f" Loaded {len(records)} records.")
     return records
 
-def upload_documents(client, class_name: str, records: list):
-    """Batch upload records to Weaviate collection."""
-    collection = client.collections.get(class_name)
-    batch_size = 100
-    logger.info(f"📤 Uploading {len(records)} records...")
-
-    start_time = time.time()
+def upload_documents(client, records):
+    collection = client.collections.get(CLASS_NAME)
+    logger.info(f" Uploading {len(records)} records...")
+    start = time.time()
     with collection.batch.dynamic() as batch:
         for i, doc in enumerate(records):
             batch.add_object(properties=doc)
             if (i + 1) % 100 == 0:
                 logger.info(f"Indexed {i + 1} / {len(records)}")
+    logger.info(f" Upload done in {time.time() - start:.2f}s")
 
-    logger.info(f" Upload completed in {time.time() - start_time:.2f} seconds.")
+#  NEW: Retrieve one document
+def retrieve_one_document(client):
+    """Fetch one document using a simple query (no semantic search)."""
+    collection = client.collections.get(CLASS_NAME)
+    
+    # Method 1: Get one object by limiting results (no vector search)
+    response = collection.query.fetch_objects(limit=1)
+    
+    if response.objects:
+        obj = response.objects[0]
+        logger.info(" Retrieved one document:")
+        print(f"Question: {obj.properties['question']}")
+        print(f"Answer: {obj.properties['answer']}")
+        print(f"PubID: {obj.properties['pubid']}")
+        print(f"Context (truncated): {obj.properties['context'][:200]}...")
+        return obj
+    else:
+        logger.warning(" No documents found in collection.")
+        return None
 
-# Main
+#  NEW: Semantic search example
+def semantic_search(client, query_text: str, limit: int = 1):
+    """Perform vector search using Cohere embeddings."""
+    collection = client.collections.get(CLASS_NAME)
+    response = collection.query.near_text(
+        query=query_text,
+        limit=limit,
+        return_metadata=MetadataQuery(distance=True)
+    )
+    
+    if response.objects:
+        obj = response.objects[0]
+        logger.info(f" Top result for query: '{query_text}'")
+        print(f"Distance: {obj.metadata.distance:.4f}")
+        print(f"Question: {obj.properties['question']}")
+        print(f"Answer: {obj.properties['answer']}")
+        print(f"PubID: {obj.properties['pubid']}")
+        return obj
+    else:
+        logger.warning(" No results for semantic search.")
+        return None
+
+# Main execution
 if __name__ == "__main__":
-    CLASS_NAME = "PubMedQA"
     client = get_weaviate_client()
-    create_schema(client, CLASS_NAME)
-    records = load_pubmedqa_train()
-    upload_documents(client, CLASS_NAME, records)
+    
+    # (Optional) Re-ingest data — comment out if already loaded
+    # create_schema(client)
+    # records = load_pubmedqa_train()
+    # upload_documents(client, records)
+    
+    #  Retrieve one document
+    logger.info("\n--- Fetching one random document ---")
+    retrieve_one_document(client)
+    
+    #  Semantic search example
+    logger.info("\n--- Semantic search example ---")
+    semantic_search(client, "What are the best ways to prevent common cold?")
+    
     client.close()
     logger.info("CloseOperation: Connection closed.")
