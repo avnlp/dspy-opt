@@ -38,11 +38,11 @@ def get_weaviate_client():
 def create_schema(client, class_name: str):
     """Create a collection (class) with text2vec-cohere vectorizer."""
     if client.collections.exists(class_name):
-        logger.info(f"  Collection '{class_name}' exists. Deleting...")
+        logger.info(f"Collection '{class_name}' exists. Deleting...")
         client.collections.delete(class_name)
         time.sleep(2)
 
-    logger.info(f"  Creating collection '{class_name}' with text2vec-cohere...")
+    logger.info(f"Creating collection '{class_name}' with text2vec-cohere...")
 
     client.collections.create(
         name=class_name,
