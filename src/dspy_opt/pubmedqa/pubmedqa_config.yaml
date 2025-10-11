@@ -1,0 +1,13 @@
+weaviate:
+  class_name: "PubMedQA"
+  vectorizer: "text2vec-cohere"
+  batch_size: 100
+  properties:
+    - name: "question"
+      dataType: ["text"]
+    - name: "context"
+      dataType: ["text"]
+    - name: "answer"
+      dataType: ["string"]
+    - name: "pubid"
+      dataType: ["string"]
