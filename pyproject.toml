@@ -1,150 +1,133 @@
-[build-system]
-requires = ["uv_build>=0.7.20,<0.8.0"]
-build-backend = "uv_build"
-
 [project]
-name = "dspy_opt"
+name = "dspy-opt"
 version = "0.1.0"
 description = 'Optimize Pipelines using DSPy'
 readme = "README.md"
-requires-python = ">=3.10"
-license = "MIT"
-keywords = []
 authors = [
-  { name = "Ashwin Mathur", email = "" },
-  { name = "Varun Mathur", email = "" },
+    {name = "Ashwin Mathur", email = ""},
+    {name = "Varun Mathur", email = ""},
 ]
-classifiers = [
-  "License :: OSI Approved :: MIT License",
-  "Development Status :: 5 - Production/Stable",
-  "Programming Language :: Python",
-]
+license = "MIT"
+repository = "https://github.com/avnlp/dspy-opt"
+requires-python = ">=3.12"
 dependencies = [
   "dspy",
   "datasets",
-  "weaviate",
+  "weaviate-client",
   "deepeval",
-  "langchain",
-  "langchain-huggingface",
-  "langchain-weaviate",
-  "sentence-transformers",
+  "sentence-transformers[onnx]",
+  "groq",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-  "black>=23.1.0",
-  "mypy>=1.0.0",
-  "ruff>=0.0.243",
+    "codecov>=2.1.13",
+    "mypy>=1.14.1",
+    "pip-audit>=2.7.3",
+    "pre-commit>=4.1.0",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.2",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "ruff>=0.9.2",
 ]
 
-[project.urls]
-Documentation = "https://github.com/avnlp/dspy-opt#readme"
-Issues = "https://github.com/avnlp/dspy-opt/issues"
-Source = "https://github.com/avnlp/dspy-opt"
+# Default dependency groups to be installed
+[tool.uv]
+default-groups = ["dev"]
 
-[tool.coverage.run]
-source = ["dspy_opt"]
-branch = true
-parallel = true
-
-[tool.coverage.report]
-omit = ["*/tests/*", "*/__init__.py"]
-show_missing = true
-exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+[tool.mypy]
+follow_imports = "normal"
+ignore_missing_imports = false
+install_types = true
+pretty = true
+non_interactive = true
+allow_untyped_defs = false
+no_implicit_optional = true
+check_untyped_defs = true
+namespace_packages = true
+explicit_package_bases = true
+warn_unused_configs = true
+allow_subclassing_any = true
+allow_untyped_calls = false
+allow_incomplete_defs = false
+allow_untyped_decorators = false
+warn_redundant_casts = true
+warn_unused_ignores = true
+implicit_reexport = false
+strict_equality = true
+extra_checks = true
+mypy_path = "src"
 
 [tool.ruff]
-line-length = 120
+include = ["*.py", "pyproject.toml", "*.ipynb"]
+exclude = []
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
 
 [tool.ruff.lint]
 select = [
-  "A",
-  "ARG",
-  "B",
-  "C",
-  "D",
-  "D401",
-  "DTZ",
-  "E",
-  "EM",
-  "F",
-  "I",
-  "ICN",
-  "ISC",
-  "N",
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  "Q",
-  "RUF",
-  "S",
-  "T",
-  "TID",
-  "UP",
-  "W",
-  "YTT",
+    "A", # flake8-builtins
+    "B", # flake8-bugbear
+    "COM", # flake8-commas
+    "C4", # flake8-comprehensions
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "ICN", # flake8-import-conventions
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "D", # pydocstyle
+    "E", # pycodestyle
+    "F", # pyflakes
+    "I", # isort
+    "W", # pycodestyle
+    "N", # pep8-naming
+    "ERA", # eradicate
+    "PL", # pylint
 ]
+fixable = ["A", "B", "COM", "C4", "RET", "SIM", "ICN", "Q", "RSE", "D", "E", "F", "I", "W", "N", "ERA", "PL"]
 ignore = [
-  # Allow unused function arguments, for pytest fixtures
-  "ARG001",
-  "ARG002",
-  "ARG003",
-  "ARG005",
-  # Allow non-abstract empty methods in abstract base classes
-  "B027",
-  # Allow boolean positional values in function calls, like `dict.get(... True)`
-  "FBT003",
-  # Allow assert statements
-  "S101", 
-  # Ignore checks for possible passwords
-  "S105",
-  "S106",
-  "S107",
-  # Ignore complexity
-  "C901",
-  "PLR2004",
-  "PLR0911",
-  "PLR0912",
-  "PLR0913",
-  "PLR0915",
-  # Allow print statements
-  "T201",
-  # Ignore missing module docstrings
-  "D100",
-  "D103",
-  "D104",
-  # Ignore Line too long
-  "E501",
+    "B905", # `zip()` without an explicit `strict=` parameter
+    "E501", # line too long
+    "D203", # 1 blank line required before class docstring
+    "D213", # Multi-line docstring summary should start at the second line
+    "PLR2004", # Replace magic number with named constant
+    "PLR0913", # Too many arguments
+    "COM812", # Missing trailing comma
+    "ERA001", # Found commented-out code (too many false positives with math comments)
+    "A001", # Ignore variable `input` is shadowing a Python builtin (common for torch)
+    "A002", # Ignore variable `input` is shadowing a Python builtin in function (common for torch)
+    "D301", # r-strings for docstrings with backslashes
 ]
-unfixable = [
-  # Don't touch unused imports
-  "F401",
-]
-extend-select = ["I"]
 
+# Ignore import violations in all `__init__.py` files.
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402", "F401", "F403", "F811"]
+# Ignoring undocumented public functions, public init, magic method, and magic numbers in tests folder
+"tests/*" = ["D103", "D105", "D107"]
+
+
+[tool.ruff.lint.pep8-naming]
+ignore-names = ["X*", "setUp"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.isort]
-known-first-party = ["prp"]
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 88
 
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "parents"
-
-[tool.ruff.lint.per-file-ignores]
-# Tests can use magic values, assertions, and relative imports
-"tests/**/*" = ["PLR2004", "S101", "TID252"]
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "--strict-markers"
-markers = ["integration: integration tests"]
-log_cli = true
-
-[tool.black]
-line-length = 120
-
-[[tool.mypy.overrides]]
-module = ["prp.*", "pytest.*", "numpy.*"]
-ignore_missing_imports = true
+[tool.coverage]
+    [tool.coverage.run]
+    source=["dspy_opt"]
+    omit=["tests/*", "*__init__.py"]
