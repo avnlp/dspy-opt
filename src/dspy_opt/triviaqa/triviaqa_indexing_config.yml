@@ -1,0 +1,32 @@
+# TriviaQA Indexing Config
+
+embedding:
+  embedding_model: "Qwen/Qwen3-Embedding-0.6B"
+  tokenizer_kwargs:
+    padding_side: "left"
+
+dataset:
+  name: "mandarjoshi/trivia_qa"
+  split: "test"
+
+metadata_schema:
+  properties:
+    content_type:
+      type: "string"
+      enum: ["review", "lyrics", "trivia", "date_info", "news"]
+      description: "Category of the content"
+    primary_entity:
+      type: "string"
+      description: "Main subject (airline, song, TV show, etc.)"
+    year:
+      type: "number"
+      description: "Publication or relevant year"
+
+extractor_llm:
+  model: "groq/llama-3.3-70b-versatile"
+
+collection_name: "TriviaQA"
+
+document_encoding:
+  batch_size: 16
+  show_progress_bar: true

@@ -1,0 +1,41 @@
+# PubMedQA Indexing Config
+
+embedding:
+  embedding_model: "Qwen/Qwen3-Embedding-0.6B"
+  tokenizer_kwargs:
+    padding_side: "left"
+
+dataset:
+  name: "qiaojin/PubMedQA"
+  subset: "pqa_artificial"
+  split: "test"
+
+metadata_schema:
+  properties:
+    diseases_conditions:
+      type: "string"
+      description: "Diseases, disorders, or medical conditions mentioned in the text"
+    biological_entities:
+      type: "string"
+      description: "Genes, proteins, cells, molecules, or biological pathways studied"
+    species:
+      type: "string"
+      description: "Species involved in the study (e.g., human, mouse, rat)"
+    study_type:
+      type: "string"
+      description: "Type of research study design"
+    main_findings:
+      type: "string"
+      description: "Key results or conclusions from the study"
+    effect_direction:
+      type: "string"
+      description: "Direction of main effects reported"
+
+extractor_llm:
+  model: "groq/llama-3.3-70b-versatile"
+
+collection_name: "PubMedQA"
+
+document_encoding:
+  batch_size: 16
+  show_progress_bar: true

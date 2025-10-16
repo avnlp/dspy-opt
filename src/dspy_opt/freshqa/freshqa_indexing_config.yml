@@ -1,0 +1,29 @@
+# FreshQA Indexing Config
+
+embedding:
+  embedding_model: "Qwen/Qwen3-Embedding-0.6B"
+  tokenizer_kwargs:
+    padding_side: "left"
+
+dataset:
+  name: "vtllms/sealqa"
+  subset: "longseal"
+  split: "test"
+
+metadata_schema:
+  properties:
+    title:
+      type: "string"
+      description: "The main title or name of the subject"
+    category:
+      type: "string"
+      description: "Primary category or type of content"
+
+extractor_llm:
+  model: "groq/llama-3.3-70b-versatile"
+
+collection_name: "FreshQA"
+
+document_encoding:
+  batch_size: 16
+  show_progress_bar: true

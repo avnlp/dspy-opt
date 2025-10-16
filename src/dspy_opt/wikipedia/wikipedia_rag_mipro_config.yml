@@ -1,0 +1,79 @@
+# Wikipedia RAG MIPROv2 Optimization Config
+
+# Models configuration
+answer_llm:
+  model: "groq/qwen3-32b"
+  api_key_env: "GROQ_API_KEY"
+
+extractor_llm:
+  model: "groq/llama-3.3-70b-versatile"
+  api_key_env: "GROQ_API_KEY"
+
+# Embedding configuration
+embedding:
+  model: "Qwen/Qwen3-Embedding-0.6B"
+  tokenizer_kwargs:
+    padding_side: "left"
+
+# Weaviate configuration
+weaviate:
+  url_env: "WEAVIATE_URL"
+  api_key_env: "WEAVIATE_API_KEY"
+  collection_name: "Wikipedia"
+  top_k: 5
+
+# RAG pipeline configuration
+rag_pipeline:
+  top_k: 5
+
+# Metadata schema configuration
+metadata_schema:
+  properties:
+    title:
+      type: "string"
+      description: "The main title or name of the subject"
+    category:
+      type: "string"
+      description: "Primary category or type of content"
+
+# Dataset configuration
+dataset:
+  name: "microsoft/wiki_qa"
+  split: "train"
+  test_size: 0.1
+
+# Evaluation configuration
+evaluation:
+  evaluator_llm:
+    model: "groq/qwen3-32b"
+    api_key_env: "GROQ_API_KEY"
+    base_url: "https://api.groq.com/openai/v1"
+
+  metrics:
+    answer_relevancy:
+      threshold: 0.8
+      async_mode: false
+    contextual_precision:
+      threshold: 0.8
+      async_mode: false
+    contextual_recall:
+      threshold: 0.5
+      async_mode: false
+    contextual_relevancy:
+      threshold: 0.5
+      async_mode: false
+    faithfulness:
+      threshold: 0.5
+      async_mode: false
+
+  settings:
+    num_threads: 1
+    display_progress: true
+    display_table: 5
+    provide_traceback: true
+
+# Optimization configuration
+optimizer:
+  max_bootstrapped_demos: 3
+  max_labeled_demos: 16
+  auto: "medium"
