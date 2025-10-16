@@ -1,4 +1,4 @@
-#  Advanced RAG pipelines optimized with DSPy 
+# Advanced RAG pipelines optimized with DSPy
 
 This repository implements optimized question-answering (QA) pipelines using DSPy (Differentiable Programming for Language Models) for multiple QA datasets. The project focuses on building efficient Retrieval-Augmented Generation (RAG) systems with advanced prompt and retrieval optimizations.
 
@@ -23,17 +23,20 @@ This repository implements optimized question-answering (QA) pipelines using DSP
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/avnlp/test-dspy-opt.git
    cd test-dspy-opt
    ```
 
 2. Install the required dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. Set up environment variables:
+
    ```bash
    export WEAVIATE_URL=your_weaviate_url
    export WEAVIATE_API_KEY=your_weaviate_api_key
@@ -101,19 +104,21 @@ These metrics are combined into a composite score for overall performance evalua
 ### Running with FreshQA
 
 1. Prepare the dataset:
+
    ```python
    from dspy_opt.freshqa.run_deepeval import preprocess_freshqa
    from datasets import load_dataset
-   
+
    dataset = load_dataset("fresh_qa", "fresh_qa_w_docs")
    processed_data, passages = preprocess_freshqa(dataset['train'])
    ```
 
 2. Initialize Weaviate and index documents:
+
    ```python
    from dspy_opt.freshqa.indexing import get_weaviate_client, create_schema, upload_documents
    from sentence_transformers import SentenceTransformer
-   
+
    client = get_weaviate_client()
    class_name = "FreshQA"
    create_schema(client, class_name)
@@ -122,9 +127,10 @@ These metrics are combined into a composite score for overall performance evalua
    ```
 
 3. Run the optimized pipeline:
+
    ```python
    from dspy_opt.freshqa.run_deepeval import main
-   
+
    main()
    ```
 
@@ -139,4 +145,3 @@ results = evaluate_pipeline(pipeline, test_data)
 print(f"Faithfulness: {results['faithfulness']}")
 print(f"Answer Relevancy: {results['relevancy']}")
 ```
-
