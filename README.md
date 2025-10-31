@@ -1,6 +1,6 @@
 # Advanced RAG Pipeline Optimization with DSPy
 
-This repository implements several Retrieval-Augmented Generation (RAG) pipelines on diverse question answering datasets using the [DSPy](https://dspy.ai/) framework. The prompts and few-shot examples in the DSPy modules are optimized using the MIPRO, COPRO, BootstrapFewShot optimizers and DeepEval metrics.
+This repository implements several Retrieval-Augmented Generation (RAG) pipelines on diverse question answering datasets using the DSPy framework. The prompts and few-shot examples in the DSPy modules are optimized using the MIPRO, COPRO, BootstrapFewShot optimizers and DeepEval metrics.
 
 The RAG pipelines are built using:
 
