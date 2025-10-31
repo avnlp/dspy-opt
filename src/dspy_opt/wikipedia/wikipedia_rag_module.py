@@ -25,7 +25,7 @@ class WikipediaAnswerSignature(dspy.Signature):
 
 
 class WikipediaRAG(dspy.Module):
-    """Complete Wikipedia RAG pipeline using DSPy framework."""
+    """Wikipedia RAG pipeline using DSPy framework."""
 
     def __init__(
         self,

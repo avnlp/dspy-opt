@@ -25,7 +25,7 @@ from dspy_opt.wikipedia.wikipedia_rag_module import WikipediaRAG
 
 
 def main() -> None:
-    """Evaluation of the RAG pipeline on TriviaQA dataset."""
+    """Evaluation of the RAG pipeline on Wikipedia dataset."""
     # Load configuration from YAML file
     with open("wikipedia_rag_copro_config.yml", "r") as f:
         config = yaml.safe_load(f)
