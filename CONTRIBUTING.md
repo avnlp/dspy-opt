@@ -38,3 +38,27 @@ analysis. Ruff checks various rules including [flake8](https://docs.astral.sh/ru
 
 Last but not the least, we use type hints in our code which is then checked using
 [mypy](https://mypy.readthedocs.io/en/stable/).
+
+## How to Contribute
+
+We welcome contributions that extend the functionality of this project. Here are a few ways you can contribute:
+
+### Adding a New Dataset
+
+1. **Create a new directory** in `src/dspy_opt` (e.g., `src/dspy_opt/new_dataset`).
+2. **Create the necessary files**, following the structure of the existing dataset modules:
+    - An indexing script (`new_dataset_indexing.py`).
+    - A RAG module (`new_dataset_rag_module.py`).
+    - Configuration files for different optimizers.
+3. **Implement the pipeline logic** in your RAG module, composing the shared utilities from `src/dspy_opt/utils` as needed.
+
+### Adding a New Utility
+
+1. **Create a new `dspy.Module`** in the `src/dspy_opt/utils` directory.
+2. **Ensure it has a clear and well-defined responsibility**.
+3. **Add docstrings and type hints**.
+4. **Integrate the new module** into one or more RAG pipelines to demonstrate its usage.
+
+### Experimenting with Different Models
+
+To experiment with different language or embedding models, simply change the model names and API keys in the `.yml` configuration files for the relevant dataset.
