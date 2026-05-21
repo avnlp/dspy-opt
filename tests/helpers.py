@@ -110,6 +110,7 @@ class DummyDataset:
         self._data = {
             "question": questions,
             "answer": answers,
+            "long_answer": answers,
             "label": ["label" for _ in questions],
         }
 

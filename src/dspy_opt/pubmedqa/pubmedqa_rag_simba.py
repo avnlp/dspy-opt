@@ -1,4 +1,4 @@
-"""Optimized PubMedQA RAG Pipeline using the COPRO optimizer."""
+"""Optimized PubMedQA RAG Pipeline using the SIMBA optimizer."""
 
 import os
 
@@ -27,7 +27,7 @@ from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
 def main() -> None:
     """Evaluation of the RAG pipeline on PubMedQA dataset."""
     # Load configuration from YAML file
-    with open("pubmedqa_rag_copro_config.yml", "r") as f:
+    with open("pubmedqa_rag_simba_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -119,22 +119,23 @@ def main() -> None:
     trainset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
         for question, answer in zip(
-            dataset["train"]["question"], dataset["train"]["long_answer"]
+            dataset["train"]["question"], dataset["train"]["answer"]
         )
     ]
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
         for question, answer in zip(
-            dataset["test"]["question"], dataset["test"]["long_answer"]
+            dataset["test"]["question"], dataset["test"]["answer"]
         )
     ]
 
     # Optimize the RAG Pipeline
-    optimizer = dspy.COPRO(
+    optimizer = dspy.SIMBA(
         metric=metrics_function,
-        breadth=config["optimizer"]["breadth"],
-        depth=config["optimizer"]["depth"],
-        init_temperature=config["optimizer"]["init_temperature"],
+        bsize=config["optimizer"]["bsize"],
+        num_candidates=config["optimizer"]["num_candidates"],
+        max_steps=config["optimizer"]["max_steps"],
+        max_demos=config["optimizer"]["max_demos"],
     )
     optimized_rag = optimizer.compile(
         rag_pipeline,
@@ -142,7 +143,7 @@ def main() -> None:
     )
 
     # Save Optimized Pipeline
-    optimized_rag.save("optimized_rag_copro.json")
+    optimized_rag.save("optimized_rag_simba.json")
 
     # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(
