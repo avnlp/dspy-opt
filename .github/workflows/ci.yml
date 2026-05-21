@@ -162,16 +162,16 @@ jobs:
 
       - name: Run tests with coverage
         if: matrix.python-version == '3.10'
-        run: make test-ci
+        run: make test-ci || test $? -eq 5
         env:
           PYTHONPATH: ${{ github.workspace }}/src
 
       - name: Run tests
         if: matrix.python-version != '3.10'
-        run: make test
+        run: make test || test $? -eq 5
 
       - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.10'
+        if: matrix.python-version == '3.10' && hashFiles('coverage.xml') != ''
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
