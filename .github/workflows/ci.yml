@@ -161,14 +161,14 @@ jobs:
         run: make sync
 
       - name: Run tests with coverage
-        if: matrix.python-version == '3.10'
-        run: make test-ci || test $? -eq 5
+        if: matrix.python-version == '3.10' && hashFiles('tests/**/test_*.py') != ''
+        run: make test-ci
         env:
           PYTHONPATH: ${{ github.workspace }}/src
 
       - name: Run tests
-        if: matrix.python-version != '3.10'
-        run: make test || test $? -eq 5
+        if: matrix.python-version != '3.10' && hashFiles('tests/**/test_*.py') != ''
+        run: make test
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.10' && hashFiles('coverage.xml') != ''
