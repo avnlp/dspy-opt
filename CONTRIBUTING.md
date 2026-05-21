@@ -27,6 +27,45 @@ Once the python virtual environment is setup, you can run pre-commit hooks using
 pre-commit run --all-files
 ```
 
+## Make Commands
+
+The project includes a Makefile with common development tasks. Run `make help` to see all available targets.
+
+### Linting and Formatting
+
+```bash
+make lint-fmt         # Format code and auto-fix lint issues
+make lint-check       # Check formatting and lint without modifying files
+make lint-style       # Lint with ruff (check only)
+make lint-typing      # Type check with mypy
+make lint-typos       # Check for typos
+make lint-all         # Format, lint, and type check
+```
+
+### Testing
+
+```bash
+make test             # Run unit tests (excluding integration)
+make test-cov         # Run tests with coverage
+make test-ci          # Run tests with coverage + XML/junit output for CI
+make cov              # Run tests and generate coverage reports (xml, html)
+```
+
+### Security
+
+```bash
+make security-bandit  # Run Bandit security scan
+make security-audit   # Run pip-audit dependency vulnerability scan
+make security         # Run all security scans
+```
+
+### Other
+
+```bash
+make sync             # Sync project and install dependencies
+make clean            # Clean build artifacts and caches
+```
+
 ## Coding guidelines
 
 For code style, we recommend the [PEP 8 style guide](https://peps.python.org/pep-0008/).
