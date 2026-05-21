@@ -25,7 +25,8 @@ metadata_schema:
 extractor_llm:
   model: "groq/llama-3.3-70b-versatile"
 
-collection_name: "TriviaQA"
+weaviate:
+  collection_name: "TriviaQA"
 
 document_encoding:
   batch_size: 16

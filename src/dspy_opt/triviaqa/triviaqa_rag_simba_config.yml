@@ -1,4 +1,4 @@
-# TriviaQA RAG Evaluation Config
+# TriviaQA RAG SIMBA Optimization Config
 
 # Models configuration
 answer_llm:
@@ -41,7 +41,11 @@ metadata_schema:
       description: "Publication or relevant year"
 
 # Dataset configuration
-dataset:
+train_dataset:
+  name: "mandarjoshi/trivia_qa"
+  split: "train"
+
+test_dataset:
   name: "mandarjoshi/trivia_qa"
   split: "test"
 
@@ -74,3 +78,10 @@ evaluation:
     display_progress: true
     display_table: 5
     provide_traceback: true
+
+# Optimization configuration
+optimizer:
+  bsize: 32
+  num_candidates: 6
+  max_steps: 8
+  max_demos: 4

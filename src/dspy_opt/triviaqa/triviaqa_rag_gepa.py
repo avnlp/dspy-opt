@@ -1,4 +1,4 @@
-"""Optimized TriviaQA RAG Pipeline using the MIPROv2 optimizer."""
+"""Optimized TriviaQA RAG Pipeline using the GEPA optimizer."""
 
 import os
 
@@ -18,7 +18,7 @@ from sentence_transformers import SentenceTransformer
 
 from dspy_opt.triviaqa.triviaqa_rag_module import TriviaQARAG
 from dspy_opt.utils.metadata_extractor import MetadataExtractor
-from dspy_opt.utils.metrics import create_metrics_function
+from dspy_opt.utils.metrics import create_gepa_metrics_function, create_metrics_function
 from dspy_opt.utils.query_rewriter import QueryRewriter
 from dspy_opt.utils.sub_query_generator import SubQueryGenerator
 from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
@@ -27,7 +27,7 @@ from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
 def main() -> None:
     """Evaluation of the RAG pipeline on TriviaQA dataset."""
     # Load configuration from YAML file
-    with open("triviaqa_rag_mipro_config.yml", "r") as f:
+    with open("triviaqa_rag_gepa_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -107,7 +107,15 @@ def main() -> None:
             **config["evaluation"]["metrics"]["faithfulness"],
         ),
     ]
-    metrics_function = create_metrics_function(metrics)
+    gepa_metrics_function = create_gepa_metrics_function(metrics)
+    eval_metrics_function = create_metrics_function(metrics)
+
+    reflection_lm = dspy.LM(
+        model=config["reflection_llm"]["model"],
+        api_key=os.getenv(config["reflection_llm"]["api_key_env"]),
+        temperature=config["reflection_llm"]["temperature"],
+        max_tokens=config["reflection_llm"]["max_tokens"],
+    )
 
     # Load dataset
     train_dataset = load_dataset(
@@ -126,11 +134,17 @@ def main() -> None:
     ]
 
     # Optimize the RAG Pipeline
-    optimizer = dspy.MIPROv2(
-        metric=metrics_function,
-        max_bootstrapped_demos=config["optimizer"]["max_bootstrapped_demos"],
-        max_labeled_demos=config["optimizer"]["max_labeled_demos"],
-        auto=config["optimizer"]["auto"],
+    optimizer = dspy.GEPA(
+        metric=gepa_metrics_function,
+        max_full_evals=config["optimizer"]["max_full_evals"],
+        reflection_minibatch_size=config["optimizer"]["reflection_minibatch_size"],
+        candidate_selection_strategy=config["optimizer"][
+            "candidate_selection_strategy"
+        ],
+        reflection_lm=reflection_lm,
+        use_merge=config["optimizer"]["use_merge"],
+        num_threads=config["optimizer"]["num_threads"],
+        seed=config["optimizer"]["seed"],
     )
     optimized_rag = optimizer.compile(
         rag_pipeline,
@@ -138,7 +152,7 @@ def main() -> None:
     )
 
     # Save Optimized Pipeline
-    optimized_rag.save("optimized_rag_mipro.json")
+    optimized_rag.save("optimized_rag_gepa.json")
 
     # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(
@@ -148,7 +162,7 @@ def main() -> None:
         display_table=config["evaluation"]["settings"]["display_table"],
         provide_traceback=config["evaluation"]["settings"]["provide_traceback"],
     )
-    results = evaluate(optimized_rag, metric=metrics_function)
+    results = evaluate(optimized_rag, metric=eval_metrics_function)
     print(results)
 
 
