@@ -111,7 +111,7 @@ Connects to a Weaviate vector database for hybrid search (vector + keyword) with
 WeaviateRetriever(
     weaviate_url: Optional[str] = None,
     weaviate_api_key: Optional[str] = None,
-    collection_name: str = "Triviaqa",
+    collection_name: str = "TriviaQA",
     top_k: int = 3,
     metadata_schema: Optional[dict[str, dict[str, object]]] = None,
 )
