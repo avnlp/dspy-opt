@@ -1,4 +1,4 @@
-"""Wikipedia RAG Pipeline using DSPy framework."""
+"""Optimized Wikipedia RAG Pipeline using the SIMBA optimizer."""
 
 import os
 
@@ -27,7 +27,7 @@ from dspy_opt.wikipedia.wikipedia_rag_module import WikipediaRAG
 def main() -> None:
     """Evaluation of the RAG pipeline on Wikipedia dataset."""
     # Load configuration from YAML file
-    with open("wikipedia_rag_evaluation_config.yml", "r") as f:
+    with open("wikipedia_rag_simba_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -112,6 +112,15 @@ def main() -> None:
     # Load dataset
     dataset = load_dataset(config["dataset"]["name"], split=config["dataset"]["split"])
     dataset = dataset.train_test_split(test_size=config["dataset"]["test_size"])
+    trainset = [
+        dspy.Example(question=question, answer=answer).with_inputs("question")
+        for question, answer, label in zip(
+            dataset["train"]["question"],
+            dataset["train"]["answer"],
+            dataset["train"]["label"],
+        )
+        if str(label) == "1"
+    ]
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
         for question, answer, label in zip(
@@ -122,7 +131,23 @@ def main() -> None:
         if str(label) == "1"
     ]
 
-    # Evaluate the RAG pipeline
+    # Optimize the RAG Pipeline
+    optimizer = dspy.SIMBA(
+        metric=metrics_function,
+        bsize=config["optimizer"]["bsize"],
+        num_candidates=config["optimizer"]["num_candidates"],
+        max_steps=config["optimizer"]["max_steps"],
+        max_demos=config["optimizer"]["max_demos"],
+    )
+    optimized_rag = optimizer.compile(
+        rag_pipeline,
+        trainset=trainset,
+    )
+
+    # Save Optimized Pipeline
+    optimized_rag.save("optimized_rag_simba.json")
+
+    # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(
         devset=testset,
         num_threads=config["evaluation"]["settings"]["num_threads"],
@@ -130,7 +155,7 @@ def main() -> None:
         display_table=config["evaluation"]["settings"]["display_table"],
         provide_traceback=config["evaluation"]["settings"]["provide_traceback"],
     )
-    results = evaluate(rag_pipeline, metric=metrics_function)
+    results = evaluate(optimized_rag, metric=metrics_function)
     print(results)
 
 

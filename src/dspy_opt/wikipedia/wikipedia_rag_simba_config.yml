@@ -1,4 +1,4 @@
-# Wikipedia RAG COPRO Optimization Config
+# Wikipedia RAG SIMBA Optimization Config
 
 # Models configuration
 answer_llm:
@@ -74,6 +74,7 @@ evaluation:
 
 # Optimization configuration
 optimizer:
-  breadth: 10
-  depth: 3
-  init_temperature: 1.4
+  bsize: 32
+  num_candidates: 6
+  max_steps: 8
+  max_demos: 4

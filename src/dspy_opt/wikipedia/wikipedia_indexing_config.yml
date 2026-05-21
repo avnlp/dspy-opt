@@ -22,7 +22,8 @@ metadata_schema:
 extractor_llm:
   model: "groq/llama-3.3-70b-versatile"
 
-collection_name: "Wikipedia"
+weaviate:
+  collection_name: "Wikipedia"
 
 document_encoding:
   batch_size: 16

@@ -1,4 +1,4 @@
-"""Wikipedia RAG Pipeline using DSPy framework."""
+"""Optimized Wikipedia RAG Pipeline using the GEPA optimizer."""
 
 import os
 
@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
 from dspy_opt.utils.metadata_extractor import MetadataExtractor
-from dspy_opt.utils.metrics import create_metrics_function
+from dspy_opt.utils.metrics import create_gepa_metrics_function, create_metrics_function
 from dspy_opt.utils.query_rewriter import QueryRewriter
 from dspy_opt.utils.sub_query_generator import SubQueryGenerator
 from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
@@ -27,7 +27,7 @@ from dspy_opt.wikipedia.wikipedia_rag_module import WikipediaRAG
 def main() -> None:
     """Evaluation of the RAG pipeline on Wikipedia dataset."""
     # Load configuration from YAML file
-    with open("wikipedia_rag_evaluation_config.yml", "r") as f:
+    with open("wikipedia_rag_gepa_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -107,11 +107,28 @@ def main() -> None:
             **config["evaluation"]["metrics"]["faithfulness"],
         ),
     ]
-    metrics_function = create_metrics_function(metrics)
+    gepa_metrics_function = create_gepa_metrics_function(metrics)
+    eval_metrics_function = create_metrics_function(metrics)
+
+    reflection_lm = dspy.LM(
+        model=config["reflection_llm"]["model"],
+        api_key=os.getenv(config["reflection_llm"]["api_key_env"]),
+        temperature=config["reflection_llm"]["temperature"],
+        max_tokens=config["reflection_llm"]["max_tokens"],
+    )
 
     # Load dataset
     dataset = load_dataset(config["dataset"]["name"], split=config["dataset"]["split"])
     dataset = dataset.train_test_split(test_size=config["dataset"]["test_size"])
+    trainset = [
+        dspy.Example(question=question, answer=answer).with_inputs("question")
+        for question, answer, label in zip(
+            dataset["train"]["question"],
+            dataset["train"]["answer"],
+            dataset["train"]["label"],
+        )
+        if str(label) == "1"
+    ]
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
         for question, answer, label in zip(
@@ -122,7 +139,28 @@ def main() -> None:
         if str(label) == "1"
     ]
 
-    # Evaluate the RAG pipeline
+    # Optimize the RAG Pipeline
+    optimizer = dspy.GEPA(
+        metric=gepa_metrics_function,
+        max_full_evals=config["optimizer"]["max_full_evals"],
+        reflection_minibatch_size=config["optimizer"]["reflection_minibatch_size"],
+        candidate_selection_strategy=config["optimizer"][
+            "candidate_selection_strategy"
+        ],
+        reflection_lm=reflection_lm,
+        use_merge=config["optimizer"]["use_merge"],
+        num_threads=config["optimizer"]["num_threads"],
+        seed=config["optimizer"]["seed"],
+    )
+    optimized_rag = optimizer.compile(
+        rag_pipeline,
+        trainset=trainset,
+    )
+
+    # Save Optimized Pipeline
+    optimized_rag.save("optimized_rag_gepa.json")
+
+    # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(
         devset=testset,
         num_threads=config["evaluation"]["settings"]["num_threads"],
@@ -130,7 +168,7 @@ def main() -> None:
         display_table=config["evaluation"]["settings"]["display_table"],
         provide_traceback=config["evaluation"]["settings"]["provide_traceback"],
     )
-    results = evaluate(rag_pipeline, metric=metrics_function)
+    results = evaluate(optimized_rag, metric=eval_metrics_function)
     print(results)
 
 
