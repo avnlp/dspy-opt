@@ -1,0 +1,31 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    after_n_builds: 2
+    wait_for_ci: yes
+
+coverage:
+  status:
+    changes: true
+    default_rules:
+      flag_coverage_not_uploaded_behavior: include
+    patch:
+      default:
+        target: 80%
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+
+comment:
+  layout: "reach, diff, flags, tree"
+  behavior: default
+  require_changes: true
+  show_carryforward_flags: false
+
+github_checks:
+  annotations: true
+
+ignore:
+  - "tests/"
+  - "**/__init__.py"
