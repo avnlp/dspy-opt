@@ -8,7 +8,7 @@
 <!-- For pipeline changes, mention the affected dataset(s), optimizer(s), and configs. -->
 <!-- For tooling/CI changes, mention the commands, workflow jobs, or checks affected. -->
 
-- 
+-
 
 ### How did you test it?
 
@@ -23,7 +23,7 @@
 
 <!-- Call out review focus areas, skipped checks, follow-up PRs, or dataset-specific caveats. -->
 
-- 
+-
 
 ### Checklist
 
