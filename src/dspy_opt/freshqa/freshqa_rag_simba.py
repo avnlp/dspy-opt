@@ -1,4 +1,4 @@
-"""FreshQA RAG Pipeline using DSPy framework."""
+"""Optimized FreshQA RAG Pipeline using the SIMBA optimizer."""
 
 import os
 
@@ -27,7 +27,7 @@ from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
 def main() -> None:
     """Evaluation of the RAG pipeline on FreshQA dataset."""
     # Load configuration from YAML file
-    with open("freshqa_rag_evaluation_config.yml", "r") as f:
+    with open("freshqa_rag_simba_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -110,17 +110,42 @@ def main() -> None:
     metrics_function = create_metrics_function(metrics)
 
     # Load dataset
-    test_dataset = load_dataset(
+    dataset = load_dataset(
         config["dataset"]["name"],
         config["dataset"]["subset"],
         split=config["dataset"]["split"],
     )
+    dataset = dataset.train_test_split(test_size=config["dataset"]["test_size"])
+    trainset = [
+        dspy.Example(question=question, answer=answer).with_inputs("question")
+        for question, answer in zip(
+            dataset["train"]["question"], dataset["train"]["answer"]
+        )
+    ]
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
-        for question, answer in zip(test_dataset["question"], test_dataset["answer"])
+        for question, answer in zip(
+            dataset["test"]["question"], dataset["test"]["answer"]
+        )
     ]
 
-    # Evaluate the RAG pipeline
+    # Optimize the RAG Pipeline
+    optimizer = dspy.SIMBA(
+        metric=metrics_function,
+        bsize=config["optimizer"]["bsize"],
+        num_candidates=config["optimizer"]["num_candidates"],
+        max_steps=config["optimizer"]["max_steps"],
+        max_demos=config["optimizer"]["max_demos"],
+    )
+    optimized_rag = optimizer.compile(
+        rag_pipeline,
+        trainset=trainset,
+    )
+
+    # Save Optimized Pipeline
+    optimized_rag.save("optimized_rag_simba.json")
+
+    # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(
         devset=testset,
         num_threads=config["evaluation"]["settings"]["num_threads"],
@@ -128,7 +153,7 @@ def main() -> None:
         display_table=config["evaluation"]["settings"]["display_table"],
         provide_traceback=config["evaluation"]["settings"]["provide_traceback"],
     )
-    results = evaluate(rag_pipeline, metric=metrics_function)
+    results = evaluate(optimized_rag, metric=metrics_function)
     print(results)
 
 
