@@ -118,7 +118,11 @@ def main() -> None:
     )
 
     # Load dataset
-    dataset = load_dataset(config["dataset"]["name"], split=config["dataset"]["split"])
+    dataset = load_dataset(
+        config["dataset"]["name"],
+        config["dataset"].get("subset"),
+        split=config["dataset"]["split"],
+    )
     dataset = dataset.train_test_split(test_size=config["dataset"]["test_size"])
     trainset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")

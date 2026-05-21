@@ -39,6 +39,7 @@ metadata_schema:
 # Dataset configuration
 dataset:
   name: "microsoft/wiki_qa"
+  subset: "default"
   split: "train"
   test_size: 0.1
 

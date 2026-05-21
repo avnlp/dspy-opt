@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     dataset = load_dataset(
         config["dataset"]["name"],
-        config["dataset"]["subset"],
+        config["dataset"].get("subset"),
         split=config["dataset"]["split"],
     )
     doc_texts = dataset["text"]
