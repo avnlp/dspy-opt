@@ -169,7 +169,7 @@ asyncio_mode = "auto"
 source_pkgs = ["dspy_opt"]
 omit = ["tests/*", "*/__init__.py"]
 branch = true
-parallel = false
+parallel = true
 
 [tool.coverage.report]
 show_missing = true
