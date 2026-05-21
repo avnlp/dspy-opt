@@ -11,7 +11,7 @@ extractor_llm:
 
 # Embedding configuration
 embedding:
-  model: "Qwen/Qwen3-Embedding-0.6B"
+  embedding_model: "Qwen/Qwen3-Embedding-0.6B"
   tokenizer_kwargs:
     padding_side: "left"
 
@@ -39,6 +39,7 @@ metadata_schema:
 # Dataset configuration
 dataset:
   name: "microsoft/wiki_qa"
+  subset: "default"
   split: "train"
   test_size: 0.1
 

@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     dataset = load_dataset(
         config["dataset"]["name"],
-        config["dataset"]["subset"],
+        config["dataset"].get("subset"),
         split=config["dataset"]["split"],
     )
     doc_texts = dataset["text"]
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     # Check connection
     client.is_ready()
 
-    collection_name = config["collection_name"]
+    collection_name = config["weaviate"]["collection_name"]
 
     # Create the collection
     if client.collections.exists(collection_name):

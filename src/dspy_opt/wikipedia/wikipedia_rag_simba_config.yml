@@ -1,4 +1,4 @@
-# Wikipedia RAG Bootstrap-Few-Shot Optimization Config
+# Wikipedia RAG SIMBA Optimization Config
 
 # Models configuration
 answer_llm:
@@ -75,6 +75,7 @@ evaluation:
 
 # Optimization configuration
 optimizer:
-  max_bootstrapped_demos: 3
-  max_labeled_demos: 16
-  max_rounds: 1
+  bsize: 32
+  num_candidates: 6
+  max_steps: 8
+  max_demos: 4
