@@ -92,7 +92,7 @@ class TestPipeline:
                 "TriviaQARAG",
                 {
                     "train_dataset": {"name": "name", "split": "train"},
-                    "test_dataset": {"name": "name", "split": "test"},
+                    "test_dataset": {"name": "name", "split": "validation"},
                 },
             ),
             (
@@ -100,7 +100,7 @@ class TestPipeline:
                 "TriviaQARAG",
                 {
                     "train_dataset": {"name": "name", "split": "train"},
-                    "test_dataset": {"name": "name", "split": "test"},
+                    "test_dataset": {"name": "name", "split": "validation"},
                 },
             ),
             (
@@ -108,7 +108,7 @@ class TestPipeline:
                 "TriviaQARAG",
                 {
                     "train_dataset": {"name": "name", "split": "train"},
-                    "test_dataset": {"name": "name", "split": "test"},
+                    "test_dataset": {"name": "name", "split": "validation"},
                 },
             ),
             (
@@ -116,7 +116,7 @@ class TestPipeline:
                 "TriviaQARAG",
                 {
                     "train_dataset": {"name": "name", "split": "train"},
-                    "test_dataset": {"name": "name", "split": "test"},
+                    "test_dataset": {"name": "name", "split": "validation"},
                     "optimizer": {
                         "max_bootstrapped_demos": 1,
                         "max_labeled_demos": 1,
@@ -129,14 +129,14 @@ class TestPipeline:
                 "TriviaQARAG",
                 {
                     "train_dataset": {"name": "name", "split": "train"},
-                    "test_dataset": {"name": "name", "split": "test"},
+                    "test_dataset": {"name": "name", "split": "validation"},
                 },
             ),
             (
                 "dspy_opt.triviaqa.triviaqa_rag_evaluation",
                 "TriviaQARAG",
                 {
-                    "test_dataset": {"name": "name", "split": "test"},
+                    "test_dataset": {"name": "name", "split": "validation"},
                     "dataset": {
                         "name": "name",
                         "subset": "subset",
