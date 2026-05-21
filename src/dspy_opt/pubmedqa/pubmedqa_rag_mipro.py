@@ -119,13 +119,13 @@ def main() -> None:
     trainset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
         for question, answer in zip(
-            dataset["train"]["question"], dataset["train"]["answer"]
+            dataset["train"]["question"], dataset["train"]["long_answer"]
         )
     ]
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
         for question, answer in zip(
-            dataset["test"]["question"], dataset["test"]["answer"]
+            dataset["test"]["question"], dataset["test"]["long_answer"]
         )
     ]
 
