@@ -1,4 +1,4 @@
-"""Optimized HotpotQA RAG Pipeline using the Bootstrap-Few-Shot optimizer."""
+"""Optimized HotpotQA RAG Pipeline using the SIMBA optimizer."""
 
 import os
 
@@ -25,9 +25,9 @@ from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
 
 
 def main() -> None:
-    """Evaluation of the RAG pipeline on TriviaQA dataset."""
+    """Evaluation of the RAG pipeline on HotpotQA dataset."""
     # Load configuration from YAML file
-    with open("hotpotqa_rag_evaluation_config.yml", "r") as f:
+    with open("hotpotqa_rag_simba_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -112,7 +112,7 @@ def main() -> None:
     # Load dataset
     dataset = load_dataset(
         config["dataset"]["name"],
-        config["dataset"]["subset"],
+        config["dataset"]["subset_name"],
         split=config["dataset"]["split"],
     )
     dataset = dataset.train_test_split(test_size=config["dataset"]["test_size"])
@@ -130,11 +130,12 @@ def main() -> None:
     ]
 
     # Optimize the RAG Pipeline
-    optimizer = dspy.BootstrapFewShotWithRandomSearch(
+    optimizer = dspy.SIMBA(
         metric=metrics_function,
-        max_bootstrapped_demos=config["optimizer"]["max_bootstrapped_demos"],
-        max_labeled_demos=config["optimizer"]["max_labeled_demos"],
-        max_rounds=config["optimizer"]["max_rounds"],
+        bsize=config["optimizer"]["bsize"],
+        num_candidates=config["optimizer"]["num_candidates"],
+        max_steps=config["optimizer"]["max_steps"],
+        max_demos=config["optimizer"]["max_demos"],
     )
     optimized_rag = optimizer.compile(
         rag_pipeline,
@@ -142,7 +143,7 @@ def main() -> None:
     )
 
     # Save Optimized Pipeline
-    optimized_rag.save("optimized_rag_bootstrap_few_shot.json")
+    optimized_rag.save("optimized_rag_simba.json")
 
     # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(
