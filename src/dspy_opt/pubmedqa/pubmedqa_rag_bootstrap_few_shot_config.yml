@@ -53,6 +53,7 @@ dataset:
   name: "qiaojin/PubMedQA"
   subset: "pqa_artificial"
   split: "test"
+  test_size: 0.1
 
 # Evaluation configuration
 evaluation:

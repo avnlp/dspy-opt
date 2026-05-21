@@ -1,4 +1,4 @@
-"""Optimized PubMedQA RAG Pipeline using the Bootstrap-Few-Shot optimizer."""
+"""Optimized PubMedQA RAG Pipeline using the SIMBA optimizer."""
 
 import os
 
@@ -27,7 +27,7 @@ from dspy_opt.utils.weaviate_retriever import WeaviateRetriever
 def main() -> None:
     """Evaluation of the RAG pipeline on PubMedQA dataset."""
     # Load configuration from YAML file
-    with open("pubmedqa_rag_bootstrap_few_shot_config.yml", "r") as f:
+    with open("pubmedqa_rag_simba_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     # Load environment variables
@@ -130,11 +130,12 @@ def main() -> None:
     ]
 
     # Optimize the RAG Pipeline
-    optimizer = dspy.BootstrapFewShotWithRandomSearch(
+    optimizer = dspy.SIMBA(
         metric=metrics_function,
-        max_bootstrapped_demos=config["optimizer"]["max_bootstrapped_demos"],
-        max_labeled_demos=config["optimizer"]["max_labeled_demos"],
-        max_rounds=config["optimizer"]["max_rounds"],
+        bsize=config["optimizer"]["bsize"],
+        num_candidates=config["optimizer"]["num_candidates"],
+        max_steps=config["optimizer"]["max_steps"],
+        max_demos=config["optimizer"]["max_demos"],
     )
     optimized_rag = optimizer.compile(
         rag_pipeline,
@@ -142,7 +143,7 @@ def main() -> None:
     )
 
     # Save Optimized Pipeline
-    optimized_rag.save("optimized_rag_bootstrap_few_shot.json")
+    optimized_rag.save("optimized_rag_simba.json")
 
     # Evaluate the optimized RAG pipeline
     evaluate = dspy.Evaluate(

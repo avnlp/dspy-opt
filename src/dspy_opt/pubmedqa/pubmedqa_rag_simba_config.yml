@@ -1,4 +1,4 @@
-# PubMedQA RAG MIPROv2 Optimization Config
+# PubMedQA RAG SIMBA Optimization Config
 
 # Models configuration
 answer_llm:
@@ -53,7 +53,6 @@ dataset:
   name: "qiaojin/PubMedQA"
   subset: "pqa_artificial"
   split: "test"
-  test_size: 0.1
 
 # Evaluation configuration
 evaluation:
@@ -87,6 +86,7 @@ evaluation:
 
 # Optimization configuration
 optimizer:
-  max_bootstrapped_demos: 3
-  max_labeled_demos: 16
-  auto: "medium"
+  bsize: 32
+  num_candidates: 6
+  max_steps: 8
+  max_demos: 4
