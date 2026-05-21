@@ -217,7 +217,9 @@ class TestPipeline:
                 "metadata_schema": {},
                 "extractor_llm": {"model": "m"},
                 "embedding": {"embedding_model": "m", "tokenizer_kwargs": {}},
-                "collection_name": "Collection",
+                "weaviate": {
+                    "collection_name": "Collection",
+                },
                 "document_encoding": {"batch_size": 1, "show_progress_bar": False},
             },
         )

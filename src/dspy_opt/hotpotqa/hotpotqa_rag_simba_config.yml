@@ -41,6 +41,7 @@ dataset:
   name: "hotpotqa/hotpot_qa"
   subset_name: "distractor"
   split: "train"
+  test_size: 0.1
 
 # Evaluation configuration
 evaluation:
