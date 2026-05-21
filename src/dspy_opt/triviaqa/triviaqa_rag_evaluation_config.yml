@@ -11,7 +11,7 @@ extractor_llm:
 
 # Embedding configuration
 embedding:
-  model: "Qwen/Qwen3-Embedding-0.6B"
+  embedding_model: "Qwen/Qwen3-Embedding-0.6B"
   tokenizer_kwargs:
     padding_side: "left"
 
@@ -43,7 +43,7 @@ metadata_schema:
 # Dataset configuration
 dataset:
   name: "mandarjoshi/trivia_qa"
-  split: "test"
+  split: "validation"
 
 # Evaluation configuration
 evaluation:

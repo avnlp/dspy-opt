@@ -62,8 +62,8 @@ def main() -> None:
     weaviate_retriever = WeaviateRetriever(
         weaviate_url=weaviate_url,
         weaviate_api_key=weaviate_api_key,
-        collection_name=config["collection_name"],
-        top_k=config["top_k"],
+        collection_name=config["weaviate"]["collection_name"],
+        top_k=config["weaviate"]["top_k"],
         metadata_schema=config["metadata_schema"],
     )
 
@@ -75,36 +75,36 @@ def main() -> None:
         metadata_schema=config["metadata_schema"],
         weaviate_retriever=weaviate_retriever,
         embedding_model=model,
-        top_k=config["top_k"],
+        top_k=config["rag_pipeline"]["top_k"],
     )
 
     evaluator_llm = LocalModel(
-        model=config["evaluator_llm"]["model"],
-        api_key=os.getenv(config["evaluator_llm"]["api_key_env"]),
-        base_url=config["evaluator_llm"]["base_url"],
+        model=config["evaluation"]["evaluator_llm"]["model"],
+        api_key=os.getenv(config["evaluation"]["evaluator_llm"]["api_key_env"]),
+        base_url=config["evaluation"]["evaluator_llm"]["base_url"],
     )
 
     # Initialize metrics
     metrics = [
         AnswerRelevancyMetric(
             model=evaluator_llm,
-            **config["metrics"]["answer_relevancy"],
+            **config["evaluation"]["metrics"]["answer_relevancy"],
         ),
         ContextualPrecisionMetric(
             model=evaluator_llm,
-            **config["metrics"]["contextual_precision"],
+            **config["evaluation"]["metrics"]["contextual_precision"],
         ),
         ContextualRecallMetric(
             model=evaluator_llm,
-            **config["metrics"]["contextual_recall"],
+            **config["evaluation"]["metrics"]["contextual_recall"],
         ),
         ContextualRelevancyMetric(
             model=evaluator_llm,
-            **config["metrics"]["contextual_relevancy"],
+            **config["evaluation"]["metrics"]["contextual_relevancy"],
         ),
         FaithfulnessMetric(
             model=evaluator_llm,
-            **config["metrics"]["faithfulness"],
+            **config["evaluation"]["metrics"]["faithfulness"],
         ),
     ]
     metrics_function = create_metrics_function(metrics)
@@ -118,11 +118,15 @@ def main() -> None:
     )
     trainset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
-        for question, answer in zip(train_dataset["question"], train_dataset["answer"])
+        for question, answer in zip(
+            train_dataset["question"], [a["value"] for a in train_dataset["answer"]]
+        )
     ]
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
-        for question, answer in zip(test_dataset["question"], test_dataset["answer"])
+        for question, answer in zip(
+            test_dataset["question"], [a["value"] for a in test_dataset["answer"]]
+        )
     ]
 
     # Optimize the RAG Pipeline

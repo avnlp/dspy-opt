@@ -107,22 +107,23 @@ class DummyDataset:
     """Dataset stand-in compatible with train/test split usage."""
 
     def __init__(self, questions: List[str], answers: List[str]) -> None:
+        self._answers = answers
         self._data = {
             "question": questions,
-            "answer": answers,
+            "answer": [{"value": a} for a in answers],
             "long_answer": answers,
             "label": ["label" for _ in questions],
         }
 
-    def __getitem__(self, item: str) -> List[str]:
+    def __getitem__(self, item: str) -> List[Any]:
         return self._data[item]
 
     def train_test_split(self, test_size: float) -> Dict[str, "DummyDataset"]:
         """Return deterministic train/test splits for pipeline tests."""
         _ = test_size
         return {
-            "train": DummyDataset(self._data["question"], self._data["answer"]),
-            "test": DummyDataset(self._data["question"], self._data["answer"]),
+            "train": DummyDataset(self._data["question"], self._answers),
+            "test": DummyDataset(self._data["question"], self._answers),
         }
 
 
