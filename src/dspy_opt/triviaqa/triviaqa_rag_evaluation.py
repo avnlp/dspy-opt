@@ -115,7 +115,9 @@ def main() -> None:
     )
     testset = [
         dspy.Example(question=question, answer=answer).with_inputs("question")
-        for question, answer in zip(test_dataset["question"], [a["value"] for a in test_dataset["answer"]])
+        for question, answer in zip(
+            test_dataset["question"], [a["value"] for a in test_dataset["answer"]]
+        )
     ]
 
     # Evaluate the RAG pipeline
