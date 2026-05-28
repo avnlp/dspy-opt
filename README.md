@@ -25,7 +25,7 @@ The RAG pipelines are built using:
 Each pipeline is configured through YAML files that allow for flexible customization of language models, embedding models, and optimizer hyperparameters.
 
 <p align="center">
-  <img src="plots/dspy_optimization_overview.png" alt="DSPy RAG Optimization Overview" width="900">
+  <img src="plots/dspy_optimization_overview.png" alt="DSPy RAG Optimization Overview" width="1000">
 </p>
 
 ## Features
