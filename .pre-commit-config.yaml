@@ -64,7 +64,7 @@ repos:
         always_run: true
 
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.14.2
+    rev: v1.50.3
     hooks:
       - id: typos
 
